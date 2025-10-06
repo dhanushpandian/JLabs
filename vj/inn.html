@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Pill Bottle Animation</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #f0f0f0 0%, #c8c8c8 100%);
+      font-family: "Poppins", sans-serif;
+      overflow: hidden;
+    }
+
+    .scene {
+      position: relative;
+      width: 200px;
+      height: 350px;
+      perspective: 1000px;
+    }
+
+    .bottle {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      border: 3px solid rgba(255, 255, 255, 0.6);
+      border-radius: 40px;
+      backdrop-filter: blur(6px);
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      overflow: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .cap {
+      position: absolute;
+      top: -40px;
+      left: 20px;
+      width: 160px;
+      height: 40px;
+      background: linear-gradient(to bottom, #c55, #a33);
+      border-radius: 10px;
+      transform-origin: center bottom;
+      transition: transform 0.6s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .cap.open {
+      transform: rotateX(65deg);
+    }
+
+    .pill {
+      position: absolute;
+      bottom: 10px;
+      width: 40px;
+      height: 20px;
+      background: linear-gradient(to right, #ff6b6b, #ffa5a5);
+      border-radius: 10px;
+      transition: all 0.8s ease;
+      opacity: 1;
+    }
+
+    .pill.out {
+      transform: translateY(150px) rotate(180deg);
+      opacity: 0;
+    }
+
+    .message-box {
+      margin-top: 30px;
+      width: 260px;
+      min-height: 60px;
+      text-align: center;
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>💊 Take a Pill</h2>
+  <div class="scene">
+    <div class="cap"></div>
+    <div class="bottle" id="bottle"></div>
+  </div>
+
+  <div class="message-box" id="messageBox">Click to release a pill.</div>
+
+  <script>
+    const bottle = document.getElementById('bottle');
+    const cap = document.querySelector('.cap');
+    const messageBox = document.getElementById('messageBox');
+
+    const pillMessages = [
+      "Vitamin C: Boosts immunity 💪",
+      "Iron Supplement: Builds strength 🩸",
+      "Pain Reliever: Eases discomfort 😌",
+      "Energy Booster: Keeps you active ⚡",
+      "Omega 3: Supports heart health ❤️",
+      "Calcium: Strengthens bones 🦴",
+      "Multivitamin: Overall wellness 🌈",
+      "Antioxidant: Fights toxins 🍃"
+    ];
+
+    let pillIndex = 0;
+
+    // Create pills inside bottle
+    pillMessages.forEach((msg, i) => {
+      const pill = document.createElement('div');
+      pill.classList.add('pill');
+      pill.style.left = `${30 + (i % 3) * 50}px`;
+      pill.style.bottom = `${10 + Math.floor(i / 3) * 25}px`;
+      pill.dataset.message = msg;
+      bottle.appendChild(pill);
+    });
+
+    bottle.addEventListener('click', () => {
+      if (pillIndex >= pillMessages.length) {
+        messageBox.textContent = "All pills are taken ✅";
+        cap.classList.remove('open');
+        return;
+      }
+
+      const pills = document.querySelectorAll('.pill');
+      const pill = pills[pillIndex];
+
+      // Open cap
+      cap.classList.add('open');
+
+      // Animate pill out after short delay
+      setTimeout(() => {
+        pill.classList.add('out');
+        messageBox.textContent = pill.dataset.message;
+        pillIndex++;
+
+        // Close cap after pill leaves
+        setTimeout(() => {
+          cap.classList.remove('open');
+        }, 600);
+      }, 400);
+    });
+  </script>
+</body>
+</html>
