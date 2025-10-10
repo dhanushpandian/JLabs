@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Particle Capsule Integration</title>
+<style>
+/* ===== Body + Particles ===== */
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: black;
+  background-image: linear-gradient(45deg, #000000 15%, #000000 85%);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Particles.js background */
+#particles-js {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+/* ===== Capsule Container ===== */
+.capsule-container {
+  position: relative;
+  width: 300px;
+  height: 60px;
+  cursor: pointer;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  animation: fadeIn 1.2s ease-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.capsule-container:hover {
+  transform: rotateY(5deg) scale(1.02);
+  transition: transform 0.3s ease-out;
+}
+
+/* ===== Capsule Halves ===== */
+.half {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  border-radius: 30px;
+  transition: all 0.5s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.left {
+  left: 0;
+  background: linear-gradient(to right, #d32f2f, #ff5252);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 2px solid #fff;
+}
+
+.right {
+  right: 0;
+  background: linear-gradient(to right, #ffffff, #eeeeee);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 2px solid #d32f2f;
+}
+
+/* ===== Capsule Click Animation ===== */
+.capsule-container.break .left { transform: translateX(-120%) rotate(-15deg); }
+.capsule-container.break .right { transform: translateX(120%) rotate(15deg); }
+
+/* ===== Popup ===== */
+.popup {
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  color: #333;
+  padding: 12px 24px;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  z-index: 3;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.popup.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+/* ===== Capsule Explosion Particles ===== */
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: #f6f9f9;
+  border-radius: 50%;
+  animation: explode 0.8s ease-out forwards;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes explode {
+  0% { transform: scale(1) translate(0,0); opacity: 1; }
+  100% { transform: scale(2.5) translate(var(--x), var(--y)); opacity: 0; }
+}
+
+/* ===== Fade-in Capsule ===== */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: scale(0.8) rotateX(20deg); }
+  100% { opacity: 1; transform: scale(1) rotateX(0deg); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 400px) {
+  .capsule-container { width: 220px; height: 50px; }
+  .popup { font-size: 14px; padding: 8px 16px; }
+}
+
+</style>
+</head>
+<body>
+
+  <!-- Particles Background -->
+  <div id="particles-js"></div>
+
+  <!-- Capsule -->
+  <div class="capsule-container" id="capsule">
+    <div class="half left"></div>
+    <div class="half right"></div>
+    <div class="popup" id="popup"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script >
+
+
+// ===== Particles.js Background =====
+particlesJS("particles-js", {
+  particles: {
+    number: { value: 80, density: { enable: true, value_area: 800 } },
+    color: { value: "#ffffff" },
+    shape: { type: "circle" },
+    opacity: { value: 0.5 },
+    size: { value: 5 },
+    line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.3, width: 2 },
+    move: { enable: true, speed: 1, out_mode: "out" }
+  },
+  interactivity: {
+    detect_on: "canvas",
+    events: {
+      onhover: { enable: true, mode: "repulse" },
+      onclick: { enable: true, mode: "push" },
+      resize: true
+    },
+    modes: { repulse: { distance: 200 }, push: { particles_nb: 4 } }
+  },
+  retina_detect: true
+});
+
+// ===== Capsule Click Animation =====
+const capsule = document.getElementById('capsule');
+const popup = document.getElementById('popup');
+
+const messages = [
+  "💥 Power Unleashed!",
+  "⚡ Energy Surge!",
+  "🔥 Explosion of Ideas!",
+  "🌟 Cosmic Reveal!",
+  "🚀 Launching Insight!"
+];
+
+let clickCount = 0;
+
+capsule.addEventListener('click', () => {
+  capsule.classList.add('break');
+  popup.classList.add('show');
+  popup.textContent = messages[clickCount % messages.length];
+  clickCount++;
+
+  createParticles('left');
+  createParticles('right');
+
+  setTimeout(() => {
+    capsule.classList.remove('break');
+    popup.classList.remove('show');
+  }, 1500);
+});
+
+function createParticles(side) {
+  const numParticles = 20;
+  for (let i = 0; i < numParticles; i++) {
+    const particle = document.createElement('div');
+    particle.classList.add('particle');
+
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = 60 + Math.random() * 40;
+    const x = Math.cos(angle) * distance + 'px';
+    const y = Math.sin(angle) * distance + 'px';
+
+    particle.style.setProperty('--x', x);
+    particle.style.setProperty('--y', y);
+    particle.style.top = '50%';
+    particle.style.left = side === 'left' ? '0%' : '100%';
+
+    capsule.appendChild(particle);
+
+    setTimeout(() => particle.remove(), 800);
+  }
+}
+
+  </script>
+</body>
+</html>
